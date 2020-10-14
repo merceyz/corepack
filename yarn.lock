@@ -3,7 +3,7 @@
 
 __metadata:
   version: 4
-  cacheKey: 6
+  cacheKey: 7
 
 "@babel/code-frame@npm:^7.0.0, @babel/code-frame@npm:^7.8.3":
   version: 7.8.3
@@ -3181,10 +3181,10 @@ fsevents@^2.1.2:
 
 "fsevents@patch:fsevents@^2.1.2#builtin<compat/fsevents>":
   version: 2.1.2
-  resolution: "fsevents@patch:fsevents@npm%3A2.1.2#builtin<compat/fsevents>::version=2.1.2&hash=495457"
+  resolution: "fsevents@patch:fsevents@npm%3A2.1.2#builtin<compat/fsevents>::version=2.1.2&hash=127e8e"
   dependencies:
     node-gyp: latest
-  checksum: 1d1501fde92a2c1ff0a134fe2db97a10916ed83321c8604998441a2cab4f5343040cd60ba64a6a06e3e321778139178c4b4a565eaa05b9cf7e16b511cdf9dcab
+  checksum: f4e06c69cb1f888dcefd81822f7789fadb2885efd0f5967cb1ec499d5bdd086fa6b7ab5d76ad2160bed8e68daf81fa96be8b8bf61957d7a531b4c12dbeab3a6a
   languageName: node
   linkType: hard
 
@@ -6881,7 +6881,7 @@ typescript@^3.9.7:
 
 "typescript@patch:typescript@^3.9.7#builtin<compat/typescript>":
   version: 3.9.7
-  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=5b02a2"
+  resolution: "typescript@patch:typescript@npm%3A3.9.7#builtin<compat/typescript>::version=3.9.7&hash=5bf698"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver

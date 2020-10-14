@@ -47,7 +47,7 @@
         "yarn": {
             "default": "1.22.10",
             "transparent": {
-              "default": "2.2.0",
+              "default": "2.3.3",
               "commands": [
                 ["yarn", "init"],
                 ["yarn", "dlx"]
