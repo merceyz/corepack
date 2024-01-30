@@ -16,12 +16,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ inputs.pr_id }}/head
 
       - name: Install Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
@@ -30,7 +30,7 @@ jobs:
         run: echo "dir=$(corepack yarn config get cacheFolder)" >> $GITHUB_OUTPUT
         shell: bash
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ${{steps.yarn-cache-dir-path.outputs.dir}}
           key: ${{runner.os}}-yarn-${{hashFiles('**/yarn.lock')}}
@@ -71,7 +71,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload `tests/nock` in case of failure
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ failure() && steps.contains-changes.outputs.result == 'yes' }}
         with:
           name: nock
