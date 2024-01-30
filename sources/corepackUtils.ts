@@ -9,7 +9,7 @@ import semver                                                  from 'semver';
 import {Readable}                                              from 'stream';
 
 import * as debugUtils                                         from './debugUtils';
-import {fetchJSON, fetch}                                      from './fetchUtils';
+import {fetch}                                                 from './fetchUtils';
 import * as folderUtils                                        from './folderUtils';
 import * as fsUtils                                            from './fsUtils';
 import * as nodeUtils                                          from './nodeUtils';
@@ -28,7 +28,8 @@ export async function fetchLatestStableVersion(spec: RegistrySpec): Promise<stri
       return await npmRegistryUtils.fetchLatestStableVersion(spec.package);
     }
     case `url`: {
-      const data = await fetchJSON(spec.url);
+      const response = await fetch(spec.url);
+      const data: any = await response.json();
       return data[spec.fields.tags].stable;
     }
     default: {
@@ -43,7 +44,8 @@ export async function fetchAvailableTags(spec: RegistrySpec): Promise<Record<str
       return await npmRegistryUtils.fetchAvailableTags(spec.package);
     }
     case `url`: {
-      const data = await fetchJSON(spec.url);
+      const response = await fetch(spec.url);
+      const data: any = await response.json();
       return data[spec.fields.tags];
     }
     default: {
@@ -58,7 +60,8 @@ export async function fetchAvailableVersions(spec: RegistrySpec): Promise<Array<
       return await npmRegistryUtils.fetchAvailableVersions(spec.package);
     }
     case `url`: {
-      const data = await fetchJSON(spec.url);
+      const response = await fetch(spec.url);
+      const data: any = await response.json();
       const field = data[spec.fields.versions];
       return Array.isArray(field) ? field : Object.keys(field);
     }
