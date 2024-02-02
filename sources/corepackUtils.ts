@@ -1,6 +1,7 @@
 import assert                                                  from 'assert';
 import {createHash}                                            from 'crypto';
 import {once}                                                  from 'events';
+import {FileHandle}                                            from 'fs/promises';
 import fs                                                      from 'fs';
 import type {Dir}                                              from 'fs';
 import Module                                                  from 'module';
@@ -8,6 +9,7 @@ import path                                                    from 'path';
 import semver                                                  from 'semver';
 import {Readable}                                              from 'stream';
 
+import * as engine                                             from './Engine';
 import * as debugUtils                                         from './debugUtils';
 import {fetch}                                                 from './fetchUtils';
 import * as folderUtils                                        from './folderUtils';
@@ -108,8 +110,8 @@ export async function findInstalledVersion(installTarget: string, descriptor: De
 }
 
 export async function installVersion(installTarget: string, locator: Locator, {spec}: {spec: PackageManagerSpec}) {
-  const {default: tar} = await import(`tar`);
-  const {version, build} = semver.parse(locator.reference)!;
+  const locatorReference = semver.parse(locator.reference)!;
+  const {version, build} = locatorReference;
 
   const installFolder = path.join(installTarget, locator.name, version);
   const corepackFile = path.join(installFolder, `.corepack`);
@@ -154,6 +156,7 @@ export async function installVersion(installTarget: string, locator: Locator, {s
 
   let sendTo: any;
   if (ext === `.tgz`) {
+    const {default: tar} = await import(`tar`);
     sendTo = tar.x({strip: 1, cwd: tmpFolder});
   } else if (ext === `.js`) {
     outputFile = path.join(tmpFolder, path.posix.basename(parsedUrl.pathname));
@@ -198,6 +201,29 @@ export async function installVersion(installTarget: string, locator: Locator, {s
       await fsUtils.rimraf(tmpFolder);
     } else {
       throw err;
+    }
+  }
+
+  if (process.env.COREPACK_DEFAULT_TO_LATEST !== `0`) {
+    let lastKnownGoodFile: FileHandle;
+    try {
+      lastKnownGoodFile = await engine.getLastKnownGoodFile(`r+`);
+      const lastKnownGood = await engine.getJSONFileContent(lastKnownGoodFile);
+      const defaultVersion = engine.getLastKnownGoodFromFileContent(lastKnownGood, locator.name);
+      if (defaultVersion) {
+        const currentDefault = semver.parse(defaultVersion)!;
+        if (currentDefault.major === locatorReference.major && semver.lt(currentDefault, locatorReference)) {
+          await engine.activatePackageManagerFromFileHandle(lastKnownGoodFile, lastKnownGood, locator);
+        }
+      }
+    } catch (err) {
+      // ENOENT would mean there are no lastKnownGoodFile, in which case we can ignore.
+      if ((err as nodeUtils.NodeError)?.code !== `ENOENT`) {
+        throw err;
+      }
+    } finally {
+      // @ts-expect-error used before assigned
+      await lastKnownGoodFile?.close();
     }
   }
 

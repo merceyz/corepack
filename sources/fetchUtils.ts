@@ -1,8 +1,27 @@
-import {UsageError} from 'clipanion';
+import {UsageError}    from 'clipanion';
+import {once}          from 'events';
+import {stderr, stdin} from 'process';
 
 export async function fetch(input: string | URL, init?: RequestInit) {
   if (process.env.COREPACK_ENABLE_NETWORK === `0`)
     throw new UsageError(`Network access disabled by the environment; can't reach ${input}`);
+
+  if (process.env.COREPACK_ENABLE_DOWNLOAD_PROMPT === `1`) {
+    console.error(`Corepack is about to download ${input}.`);
+    if (stdin.isTTY && !process.env.CI) {
+      stderr.write(`\nDo you want to continue? [Y/n] `);
+      stdin.resume();
+      const chars = await once(stdin, `data`);
+      stdin.pause();
+      if (
+        chars[0][0] === 0x6e || // n
+          chars[0][0] === 0x4e // N
+      ) {
+        throw new UsageError(`Aborted by the user`);
+      }
+    }
+  }
+
 
   return fetchWrapper(input, init);
 }
